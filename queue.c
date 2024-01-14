@@ -16,10 +16,8 @@ struct list_head *q_new()
 {
     queue_contex_t * t = malloc(sizeof(queue_contex_t));
     
-    
     // alloc mem for list_head 
     struct list_head *ht = malloc(sizeof(struct list_head));
-
 
     
     t->q = ht ;
@@ -34,6 +32,45 @@ struct list_head *q_new()
 
 /* Free all storage used by queue */
 void q_free(struct list_head *l) {
+
+    // use container of
+    if(l == NULL)
+        return;
+    
+    struct list_head * t = l->next;
+
+     /**
+    * container_of() - Calculae address of structure that contains address ptrt
+    * @ptr: pointer to member variable
+    * @type: type of the structure containing ptr
+    * @member: name of the member variable in struct @type
+    *
+    * Return: @type pointer of structure containing ptr
+    */
+    
+    if(t == l){
+        queue_contex_t * qct = container_of( t, queue_contex_t , q);
+        free(t);
+        free(qct);
+        return;
+    }
+    
+    do
+    {
+        
+        element_t * et = container_of(t, element_t , list);
+        t = t->next;
+        free(et->value);
+        free(et);
+    
+    }while(t != l);
+
+    queue_contex_t * qct= container_of( t, queue_contex_t , q);
+    free(t);
+    free(qct);
+    
+
+    return ;
     
     
 }
@@ -45,9 +82,23 @@ bool q_insert_head(struct list_head *head, char *s)
     if(head == NULL)
         return false;
     
+
     element_t* t = malloc(sizeof(element_t));
 
-    t->value = s;
+    // mem alloc for string new string
+    char * st  =  (char *)malloc( sizeof(s));
+
+    size_t i = 0;
+
+    for( i =0 ; s[i] != '\0'; i++)
+    {
+        st[i] = s[i];
+    }
+    
+    st[i] = '\0';
+    
+    
+    t->value = st;
 
     t->list.next = head->next ;
     t->list.prev = head;
@@ -68,8 +119,22 @@ bool q_insert_tail(struct list_head *head, char *s)
     
     element_t* t = malloc(sizeof(element_t));
 
+
     // set the new node
-    t->value = s;
+    
+    char * st  = (char *) malloc(sizeof(*s));
+
+    int i = 0;
+      
+    for( i =0 ; s[i] != '\0'; i++)
+    {
+        st[i] = s[i];
+    }
+
+    st[i] ='\0';
+    
+    t->value = st;
+    
     t->list.next = head ;
     t->list.prev = head->prev;
 
@@ -97,7 +162,24 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 int q_size(struct list_head *head)
 {
     
-    return -1;
+    if(head == NULL)
+        return 0;
+    
+
+    struct list_head * t = head->next;
+    
+    
+    int len = 0;
+    
+    while(t != head)
+    {
+        len++;
+        t = t->next;
+    }
+
+
+
+    return len;
 }
 
 /* Delete the middle node in queue */
