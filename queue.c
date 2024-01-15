@@ -14,129 +14,122 @@
 /* Create an empty queue */
 struct list_head *q_new()
 {
-    queue_contex_t * t = malloc(sizeof(queue_contex_t));
-    
-    // alloc mem for list_head 
+    // queue_contex_t * t = malloc(sizeof(queue_contex_t));
+
+
+    // alloc mem for list_head
     struct list_head *ht = malloc(sizeof(struct list_head));
 
-    
-    t->q = ht ;
-    
-    t->q->next = t->q;
-    t->q->prev = t->q;
+    ht->next = ht;
+    ht->prev = ht;
 
-    return t->q;
-
-    
+    return ht;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *l) {
-
+void q_free(struct list_head *l)
+{
     // use container of
-    if(l == NULL)
+    if (l == NULL)
         return;
-    
-    struct list_head * t = l->next;
 
-     /**
-    * container_of() - Calculae address of structure that contains address ptrt
-    * @ptr: pointer to member variable
-    * @type: type of the structure containing ptr
-    * @member: name of the member variable in struct @type
-    *
-    * Return: @type pointer of structure containing ptr
-    */
-    
-    if(t == l){
-        queue_contex_t * qct = container_of( t, queue_contex_t , q);
+    struct list_head *t = l->prev;
+
+    /**
+     * container_of() - Calculae address of structure that contains address ptr
+     * @ptr: pointer to member variable
+     * @type: type of the structure containing ptr
+     * @member: name of the member variable in struct @type
+     *
+     * Return: @type pointer of structure containing ptr
+     */
+
+    if (t == l) {
         free(t);
-        free(qct);
         return;
     }
-    
-    do
-    {
-        
-        element_t * et = container_of(t, element_t , list);
-        t = t->next;
+
+    do {
+        element_t *et = container_of(t, element_t, list);
+        t = t->prev;
         free(et->value);
         free(et);
-    
-    }while(t != l);
 
-    queue_contex_t * qct= container_of( t, queue_contex_t , q);
-    free(t);
-    free(qct);
-    
+    } while (t != l);
 
-    return ;
-    
-    
+
+    free(l);
+
+
+
+    return;
 }
 
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
 {
     // false for allocation failed or queue is NULL
-    if(head == NULL)
+    if (head == NULL)
         return false;
-    
 
-    element_t* t = malloc(sizeof(element_t));
+
+    element_t *t = malloc(sizeof(element_t));
 
     // mem alloc for string new string
-    char * st  =  (char *)malloc( sizeof(s));
+    char *st = (char *) malloc(sizeof(s));
 
     size_t i = 0;
 
-    for( i =0 ; s[i] != '\0'; i++)
-    {
+    for (i = 0; s[i] != '\0'; i++) {
         st[i] = s[i];
     }
-    
+
     st[i] = '\0';
-    
-    
+
+
     t->value = st;
 
-    t->list.next = head->next ;
+    t->list.next = head->next;
     t->list.prev = head;
 
-    // change the second element_t
-    head->next->prev =  &(t->list);
-    head->next =  &(t->list);
 
-    
+    // change the second element_t
+    head->next->prev = &(t->list);
+    head->next = &(t->list);
+
+
     return true;
 }
 
 /* Insert an element at tail of queue */
 bool q_insert_tail(struct list_head *head, char *s)
 {
-    if(head == NULL)
+    if (head == NULL)
         return false;
-    
-    element_t* t = malloc(sizeof(element_t));
 
 
     // set the new node
-    
-    char * st  = (char *) malloc(sizeof(*s));
+    element_t *t = malloc(sizeof(element_t));
 
-    int i = 0;
-      
-    for( i =0 ; s[i] != '\0'; i++)
-    {
+    // avoid to use malloc(sizeof(*s)) !!!
+    char *st = (char *) malloc(sizeof(s));
+
+    size_t i = 0;
+
+    for (i = 0; s[i] != '\0'; i++) {
         st[i] = s[i];
     }
 
-    st[i] ='\0';
-    
+    st[i] = '\0';
+
     t->value = st;
-    
-    t->list.next = head ;
+
+
+
+    t->list.next = head;
     t->list.prev = head->prev;
+
+
 
     // change the second node
     head->prev->next = &(t->list);
@@ -148,31 +141,82 @@ bool q_insert_tail(struct list_head *head, char *s)
 /* Remove an element from head of queue */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    
-    return NULL;
+    if (head == NULL)
+        return NULL;
+    else if (head->next == head)
+        return NULL;
+    struct list_head *t = head;
+
+
+    // node needed to be removed
+    t = t->next;
+    element_t *et = container_of(t, element_t, list);
+    // change the linked-list
+    head->next = t->next;
+    t->next->prev = head;
+
+
+    // Set the st
+
+
+    if (sp != NULL) {
+        size_t i = 0;
+        for (i = 0; et->value[i] != '\0'; i++) {
+            sp[i] = et->value[i];
+        }
+        sp[i] = '\0';
+    }
+
+
+
+    return et;
 }
 
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (head == NULL)
+        return NULL;
+    else if (head->next == head)
+        return NULL;
+    struct list_head *t = head;
+    // node needed to be removed
+    t = t->prev;
+
+    element_t *et = container_of(t, element_t, list);
+    // change the linked-list
+    head->prev = t->prev;
+    t->prev->next = head;
+
+
+    // Set the st
+
+
+    if (sp != NULL) {
+        size_t i = 0;
+        for (i = 0; et->value[i] != '\0'; i++) {
+            sp[i] = et->value[i];
+        }
+        sp[i] = '\0';
+    }
+
+
+    return et;
 }
 
 /* Return number of elements in queue */
 int q_size(struct list_head *head)
 {
-    
-    if(head == NULL)
+    if (head == NULL)
         return 0;
-    
 
-    struct list_head * t = head->next;
-    
-    
+
+    struct list_head *t = head->next;
+
+
     int len = 0;
-    
-    while(t != head)
-    {
+
+    while (t != head) {
         len++;
         t = t->next;
     }
