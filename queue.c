@@ -262,23 +262,25 @@ bool q_delete_dup(struct list_head *head)
         return false;
 
 
-
     // struct list_head *node = head->next;
 
 
-    /*
-    struct list_head *ni = head;
-    struct list_head *nj = head;
+
+    struct list_head *ni;
+    struct list_head *nj;
     struct list_head *nt;
 
 
-    list_for_each (ni, head) {
+    for (ni = head->next; ni != head; ni = ni->next) {
+        bool has_d = false;
         element_t *eti = container_of(ni, element_t, list);
 
-        list_for_each (nj, ni) {
+
+        for (nj = ni->next; nj != head; nj = nj->next) {
             element_t *etj = container_of(nj, element_t, list);
 
             if (strcmp(eti->value, etj->value) == 0) {
+                has_d = true;
                 nt = nj->prev;
                 list_del(nj);
                 nj = nt;
@@ -286,7 +288,14 @@ bool q_delete_dup(struct list_head *head)
                 free(etj);
             }
         }
-    }*/
+        if (has_d) {
+            nt = ni->prev;
+            list_del(ni);
+            ni = nt;
+            free(eti->value);
+            free(eti);
+        }
+    }
     return true;
 }
 
