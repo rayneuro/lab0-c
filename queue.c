@@ -315,13 +315,69 @@ void q_reverseK(struct list_head *head, int k)
 }
 
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    if (head == NULL || list_empty(head) || list_is_singular(head))
+        return;
+    /*
+struct list_head *ni;
+struct list_head *nj;
+struct list_head *nt;
+int size = q_size(head);
+*/
+    /**
+     * list_cut_position() - Move beginning of a list to another list
+     * @head_to: pointer to the head of the list which receives nodes
+     * @head_from: pointer to the head of the list
+     * @node: pointer to the node in which defines the cutting point
+     *
+     * All entries from the beginning of the list @head_from to (including) the
+     * @node is moved to @head_to.
+     *
+     * @head_to is replaced when @head_from is not empty. @node must be a real
+     * list node from @head_from or the behavior is undefined.
+     */
+}
+
+
+
+// Use to merge two sorted list
+struct list_head *list_merge(struct list_head *q1,
+                             struct list_head *q2,
+                             bool descend,
+                             int size)
+{
+    /*
+    struct list_head *t1 = q1 ;
+    struct list_head *t2 = q2;
+    struct list_head *n ;
+    if(descend == true){
+        for (t1 = q1->next, t2 =q2->next; t1 != q1 || t2 != q2;) {
+            if (strcmp(container_of(q1, element_t, list)->value,
+            container_of(q2, element_t, list)->value) < 0) {
+
+                list_move(t1,q1);
+                t1 = t1->next;
+
+            }else{
+                list_move(t2, q2);
+                t2 = t2->next;
+            }
+        }
+    }else{
+
+    }*/
+    return q1;
+}
+
+
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
 int q_ascend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
+
     return 0;
 }
 
