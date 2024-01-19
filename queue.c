@@ -57,9 +57,7 @@ void q_free(struct list_head *l)
 
     } while (t != l);
 
-
     free(l);
-
 
 
     return;
@@ -207,12 +205,11 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 /* Return number of elements in queue */
 int q_size(struct list_head *head)
 {
-    if (head == NULL)
+    if (head == NULL || list_empty(head))
         return 0;
 
 
     struct list_head *t = head->next;
-
 
     int len = 0;
 
@@ -222,7 +219,6 @@ int q_size(struct list_head *head)
     }
 
 
-
     return len;
 }
 
@@ -230,6 +226,31 @@ int q_size(struct list_head *head)
 bool q_delete_mid(struct list_head *head)
 {
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+
+    if (head == NULL || list_empty(head))
+        return false;
+
+
+
+    int size = q_size(head);
+
+    struct list_head *node = head->next;
+
+    size /= 2;
+
+    for (int i = 0; i < size; i++) {
+        node = node->next;
+    }
+
+    element_t *et = container_of(node, element_t, list);
+
+    list_del(node);
+
+    free(et->value);
+    free(et);
+
+
+
     return true;
 }
 
@@ -237,6 +258,35 @@ bool q_delete_mid(struct list_head *head)
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+    if (head == NULL || list_empty(head))
+        return false;
+
+
+
+    // struct list_head *node = head->next;
+
+
+    /*
+    struct list_head *ni = head;
+    struct list_head *nj = head;
+    struct list_head *nt;
+
+
+    list_for_each (ni, head) {
+        element_t *eti = container_of(ni, element_t, list);
+
+        list_for_each (nj, ni) {
+            element_t *etj = container_of(nj, element_t, list);
+
+            if (strcmp(eti->value, etj->value) == 0) {
+                nt = nj->prev;
+                list_del(nj);
+                nj = nt;
+                free(etj->value);
+                free(etj);
+            }
+        }
+    }*/
     return true;
 }
 
@@ -271,6 +321,8 @@ int q_ascend(struct list_head *head)
 int q_descend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
+
+
     return 0;
 }
 
