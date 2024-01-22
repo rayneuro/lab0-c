@@ -529,9 +529,36 @@ void q_sort(struct list_head *head, bool descend)
 int q_ascend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    // for(struct list_head t = q_ascend ;;;)
+    if (head == NULL || list_empty(head))
+        return false;
 
-    return 0;
+    // struct list_head *node = head->next;
+
+    struct list_head *ni;
+    struct list_head *nj;
+    struct list_head *nt;
+
+    for (ni = head->next; ni != head; ni = ni->next) {
+        element_t *eti = container_of(ni, element_t, list);
+
+
+        for (nj = ni->next; nj != head; nj = nj->next) {
+            element_t *etj = container_of(nj, element_t, list);
+
+            if (strcmp(eti->value, etj->value) > 0) {
+                nt = nj->prev;
+                list_del(nj);
+                nj = nt;
+                free(etj->value);
+                free(etj);
+            }
+        }
+    }
+    return true;
+
+
+
+    return q_size(head);
 }
 
 /* Remove every node which has a node with a strictly greater value anywhere to
@@ -539,6 +566,34 @@ int q_ascend(struct list_head *head)
 int q_descend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
+    if (head == NULL || list_empty(head))
+        return false;
+
+    // struct list_head *node = head->next;
+
+    struct list_head *ni;
+    struct list_head *nj;
+    struct list_head *nt;
+
+    for (ni = head->next; ni != head; ni = ni->next) {
+        element_t *eti = container_of(ni, element_t, list);
+
+
+        for (nj = ni->next; nj != head; nj = nj->next) {
+            element_t *etj = container_of(nj, element_t, list);
+
+            if (strcmp(eti->value, etj->value) < 0) {
+                nt = nj->prev;
+                list_del(nj);
+                nj = nt;
+                free(etj->value);
+                free(etj);
+            }
+        }
+    }
+
+
+    return q_size(head);
 
 
     return 0;
