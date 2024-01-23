@@ -270,9 +270,6 @@ bool q_delete_dup(struct list_head *head)
         return false;
 
 
-    // struct list_head *node = head->next;
-
-
 
     struct list_head *ni;
     struct list_head *nj;
@@ -316,12 +313,58 @@ void q_swap(struct list_head *head)
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    // https://leetcode.com/problems/reverse-linked-list/
+    if (head == NULL || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *node = head->next;
+
+    struct list_head *nt;
+
+    for (; node != head;) {
+        nt = node->next;
+        node->next = node->prev;
+        node->prev = nt;
+        node = nt;
+    }
+
+    nt = head->next;
+    head->next = head->prev;
+    head->prev = nt;
+
+    return;
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
 {
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
+    if (head == NULL || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *node = head->next;
+    struct list_head *nt;
+    // set head and tail of size k list
+    // struct list_head *lh = head;
+    // struct list_head *lt = NULL;
+
+
+    for (; node != head;) {
+        for (int i = 0; i < k; i++) {
+            nt = node->next;
+            node->next = node->prev;
+            node->prev = nt;
+            node = nt;
+        }
+    }
+
+    nt = head->next;
+    head->next = head->prev;
+    head->prev = nt;
+
+    return;
 }
 
 
@@ -545,7 +588,7 @@ int q_ascend(struct list_head *head)
         for (nj = ni->next; nj != head; nj = nj->next) {
             element_t *etj = container_of(nj, element_t, list);
 
-            if (strcmp(eti->value, etj->value) > 0) {
+            if (strcmp(eti->value, etj->value) >= 0) {
                 nt = nj->prev;
                 list_del(nj);
                 nj = nt;
@@ -582,7 +625,7 @@ int q_descend(struct list_head *head)
         for (nj = ni->next; nj != head; nj = nj->next) {
             element_t *etj = container_of(nj, element_t, list);
 
-            if (strcmp(eti->value, etj->value) < 0) {
+            if (strcmp(eti->value, etj->value) <= 0) {
                 nt = nj->prev;
                 list_del(nj);
                 nj = nt;
