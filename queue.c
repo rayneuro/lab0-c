@@ -343,29 +343,57 @@ void q_reverseK(struct list_head *head, int k)
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
     if (head == NULL || list_empty(head) || list_is_singular(head))
         return;
+    if (k == 1)
+        return;
 
     struct list_head *node = head->next;
-    struct list_head *nt;
+    struct list_head *headn = NULL;
+    struct list_head *tailn = NULL;
+    struct list_head *lastntail = head;  // record the last group tail
+    // struct list_head *lasthead = NULL;
+    struct list_head *tn;  // temp node
     // set head and tail of size k list
     // struct list_head *lh = head;
     // struct list_head *lt = NULL;
 
 
     for (; node != head;) {
-        for (int i = 0; i < k; i++) {
-            nt = node->next;
-            node->next = node->prev;
-            node->prev = nt;
-            node = nt;
+        for (int i = 0; i < k && node != head; i++) {
+            if (i == 0) {
+                tailn = node;  // record the first node to tail node
+                tn = node->next;
+                node->prev = tn;
+                node = tn;
+
+            } else if (i == k - 1 || node->next == head) {
+                headn = node;  // record the last node to head node
+                tn = node->next;
+                node->next = node->prev;
+                node = tn;
+
+            } else {
+                // exchange the link of prev and next of node
+                tn = node->next;
+                node->next = node->prev;
+                node->prev = tn;
+                node = tn;
+            }
         }
+
+
+        lastntail->next = headn;  // let last k node link the first node
+        headn->prev = lastntail;  // let first node link the last tail node
+        lastntail = tailn;        // record the last group tail
     }
 
-    nt = head->next;
-    head->next = head->prev;
-    head->prev = nt;
+    // link the head prev
+    head->prev = tailn;
+    tailn->next = head;
+
 
     return;
 }
+
 
 
 bool cmp(void *priv, const struct list_head *a, const struct list_head *b)
@@ -647,5 +675,15 @@ int q_descend(struct list_head *head)
 int q_merge(struct list_head *head, bool descend)
 {
     // https://leetcode.com/problems/merge-k-sorted-lists/
+    // queue_contex_t *contex = container_of(head, queue_contex_t, chain);
+    struct list_head *h = head->next;
+
+
+    for (; h != head; h = h->next) {
+        list_splice_tail(head, h);
+    }
+
+
+
     return 0;
 }
