@@ -360,6 +360,9 @@ void q_reverseK(struct list_head *head, int k)
     for (; node != head;) {
         for (int i = 0; i < k && node != head; i++) {
             if (i == 0) {
+                if (node->next == head) {
+                    headn = node;
+                }
                 tailn = node;  // record the first node to tail node
                 tn = node->next;
                 node->prev = tn;
@@ -675,14 +678,35 @@ int q_descend(struct list_head *head)
 int q_merge(struct list_head *head, bool descend)
 {
     // https://leetcode.com/problems/merge-k-sorted-lists/
-    // queue_contex_t *contex = container_of(head, queue_contex_t, chain);
-    struct list_head *h = head->next;
+    // * @head: header of chain
+    //* @descend: whether to merge queues sorted in descending order
+
+    queue_contex_t *contex = container_of(head, queue_contex_t, q);
+    if (contex->chain.next == head)
+        return contex->size;
+
+    // get next chain header
+    struct list_head *h = contex->chain.next;
+
 
 
     for (; h != head; h = h->next) {
-        list_splice_tail(head, h);
+        // now header
+        // element_t * i = container_of(head, element_t, list);
+        // element_t * j = container_of(h,element_t,list);
+
+        struct list_head *i = head;
+        struct list_head *j = h;
+        for (; i != head && j != h;) {
+            if (cmp(&descend, i, j)) {
+                i = i->next;
+            } else {
+                j = j->next;
+            }
+        }
     }
 
+    q_sort(head, descend);
 
 
     return 0;
