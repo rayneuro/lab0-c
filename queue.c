@@ -680,17 +680,18 @@ int q_merge(struct list_head *head, bool descend)
     // https://leetcode.com/problems/merge-k-sorted-lists/
     // * @head: header of chain
     //* @descend: whether to merge queues sorted in descending order
-
-    queue_contex_t *contex = container_of(head, queue_contex_t, q);
-    if (contex->chain.next == head)
+    /*
+    queue_contex_t * contex = container_of(head,queue_contex_t,chain);
+    if (head->next == head)
         return contex->size;
 
-    // get next chain header
-    struct list_head *h = contex->chain.next;
+    // get chain header
+    struct list_head *h1 = contex->q;
+    struct list_head *h2 = head->next;
 
 
 
-    for (; h != head; h = h->next) {
+    for (; h1 != ; h = h->next) {
         // now header
         // element_t * i = container_of(head, element_t, list);
         // element_t * j = container_of(h,element_t,list);
@@ -705,7 +706,7 @@ int q_merge(struct list_head *head, bool descend)
             }
         }
     }
-
+    */
     q_sort(head, descend);
 
 
