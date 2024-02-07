@@ -151,19 +151,15 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
         return NULL;
     else if (head->next == head)
         return NULL;
-    struct list_head *t = head;
+    struct list_head *t = head->next;
 
 
     // node needed to be removed
-    t = t->next;
     element_t *et = container_of(t, element_t, list);
-    // change the linked-list
-    head->next = t->next;
-    t->next->prev = head;
 
+    list_del_init(t);
 
     // Set the st
-
 
     if (sp != NULL) {
         size_t i = 0;
@@ -270,7 +266,6 @@ bool q_delete_dup(struct list_head *head)
         return false;
 
 
-
     struct list_head *ni;
     struct list_head *nj;
     struct list_head *nt;
@@ -287,7 +282,7 @@ bool q_delete_dup(struct list_head *head)
             if (strcmp(eti->value, etj->value) == 0) {
                 has_d = true;
                 nt = nj->prev;
-                list_del(nj);
+                list_del_init(nj);
                 nj = nt;
                 free(etj->value);
                 free(etj);
@@ -295,7 +290,7 @@ bool q_delete_dup(struct list_head *head)
         }
         if (has_d) {
             nt = ni->prev;
-            list_del(ni);
+            list_del_init(ni);
             ni = nt;
             free(eti->value);
             free(eti);
@@ -673,6 +668,20 @@ int q_descend(struct list_head *head)
     return 0;
 }
 
+
+/*
+   splice the node(listfrom) ahead of the node (listto)
+*/
+void splice_node(struct list_head *nodefrom, struct list_head *nodeto)
+{
+    list_del_init(nodefrom);  // delete node from queue
+    nodefrom->next = nodeto;
+    nodefrom->prev = nodeto->prev;
+    nodeto->prev->next = nodefrom;
+    nodeto->prev = nodefrom;
+    return;
+}
+
 /* Merge all the queues into one sorted queue, which is in ascending/descending
  * order */
 int q_merge(struct list_head *head, bool descend)
@@ -680,35 +689,70 @@ int q_merge(struct list_head *head, bool descend)
     // https://leetcode.com/problems/merge-k-sorted-lists/
     // * @head: header of chain
     //* @descend: whether to merge queues sorted in descending order
-    /*
-    queue_contex_t * contex = container_of(head,queue_contex_t,chain);
-    if (head->next == head)
-        return contex->size;
+
+
+    // chain head
+    // typedef struct {
+    //    struct list_head head;
+    //    int size;
+    //    } queue_chain_t;
+
+    // add new queue => list_add_tail(&qctx->chain, &chain.head);
+
+
+    // get the first queue chain head
+    struct list_head *first_chain = head->next;
+    struct list_head *second;
+
+    queue_contex_t *contex = container_of(first_chain, queue_contex_t, chain);
+
+    if (first_chain->next == head)
+        return q_size(contex->q);
+
+    second = first_chain->next;
+
+    queue_contex_t *contex2 = container_of(second, queue_contex_t, chain);
 
     // get chain header
-    struct list_head *h1 = contex->q;
-    struct list_head *h2 = head->next;
+    struct list_head *h1ead = contex->q;
+    struct list_head *h1;
+    struct list_head *h2ead;
+    struct list_head *h2;
 
+    // now header
 
+    struct list_head *t;
+    for (; second != head;) {
+        h1 = h1ead->next;
+        h2ead = contex2->q;
+        h2 = h2ead->next;
 
-    for (; h1 != ; h = h->next) {
-        // now header
-        // element_t * i = container_of(head, element_t, list);
-        // element_t * j = container_of(h,element_t,list);
+        for (; h1 != h1ead && h2 != h2ead;) {
+            if (cmp(&descend, h1, h2)) {
+                // In ascend situation
+                //  h1 value > h2 value
+                h1 = h1->next;
 
-        struct list_head *i = head;
-        struct list_head *j = h;
-        for (; i != head && j != h;) {
-            if (cmp(&descend, i, j)) {
-                i = i->next;
             } else {
-                j = j->next;
+                t = h2->next;
+                splice_node(h2, h1);
+                h2 = t;
             }
         }
+
+        // list_splice_tail(h2ead,h1ead);
+
+        // Need it init the list head
+        // The queue head will externally
+        list_splice_tail_init(h2ead, h1ead);
+
+
+        second = second->next;
+        if (second == head)
+            break;
+        contex2 = container_of(second, queue_contex_t, chain);
     }
-    */
-    q_sort(head, descend);
 
 
-    return 0;
+    return q_size(h1ead);
 }
