@@ -82,7 +82,11 @@ bool q_insert_head(struct list_head *head, char *s)
     element_t *t = malloc(sizeof(element_t));
 
     // mem alloc for string new string
-    char *st = (char *) malloc(sizeof(s));
+    // don't know why but t->value =  (char * ) malloc( sizeof(s)); doesn't wotk
+    // t->value =  (char * ) malloc( strlen(s) * sizeof(char) +1 ); --> memory
+    // leak
+    //
+    char *st = (char *) malloc(strlen(s) * sizeof(char) + 1);
 
     size_t i = 0;
 
@@ -91,9 +95,8 @@ bool q_insert_head(struct list_head *head, char *s)
     }
 
     st[i] = '\0';
-
-
     t->value = st;
+
 
     t->list.next = head->next;
     t->list.prev = head;
@@ -102,7 +105,6 @@ bool q_insert_head(struct list_head *head, char *s)
     // change the second element_t
     head->next->prev = &(t->list);
     head->next = &(t->list);
-
 
     return true;
 }
@@ -118,7 +120,7 @@ bool q_insert_tail(struct list_head *head, char *s)
     element_t *t = malloc(sizeof(element_t));
 
     // avoid to use malloc(sizeof(*s)) !!!
-    char *st = (char *) malloc(sizeof(s));
+    char *st = (char *) malloc(strlen(s) * sizeof(char) + 1);
 
     size_t i = 0;
 
@@ -129,8 +131,6 @@ bool q_insert_tail(struct list_head *head, char *s)
     st[i] = '\0';
 
     t->value = st;
-
-
 
     t->list.next = head;
     t->list.prev = head->prev;
@@ -248,7 +248,7 @@ bool q_delete_mid(struct list_head *head)
 
     element_t *et = container_of(node, element_t, list);
 
-    list_del(node);
+    list_del_init(node);
 
     free(et->value);
     free(et);
@@ -258,7 +258,7 @@ bool q_delete_mid(struct list_head *head)
     return true;
 }
 
-/* Delete all nodes that have duplicate string */
+/* Delete all nodes that have duplicates */
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
@@ -271,31 +271,37 @@ bool q_delete_dup(struct list_head *head)
     struct list_head *nt;
 
 
-    for (ni = head->next; ni != head; ni = ni->next) {
+    for (ni = head->next; ni != head;) {
         bool has_d = false;
         element_t *eti = container_of(ni, element_t, list);
 
 
-        for (nj = ni->next; nj != head; nj = nj->next) {
+        for (nj = ni->next; nj != head;) {
             element_t *etj = container_of(nj, element_t, list);
 
             if (strcmp(eti->value, etj->value) == 0) {
                 has_d = true;
-                nt = nj->prev;
+                nt = nj->next;
                 list_del_init(nj);
                 nj = nt;
                 free(etj->value);
                 free(etj);
+            } else {
+                nj = nj->next;
             }
         }
+
         if (has_d) {
-            nt = ni->prev;
+            nt = ni->next;
             list_del_init(ni);
             ni = nt;
             free(eti->value);
             free(eti);
+        } else {
+            ni = ni->next;
         }
     }
+
     return true;
 }
 
@@ -305,6 +311,25 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+
+    if (list_is_singular(head) || list_empty(head))
+        return;
+
+    struct list_head *t1 = head->next;
+    struct list_head *t2 = head->next->next;
+
+    for (; t1 != head && t2 != head;) {
+        list_del_init(t1);
+        t1->next = t2->next;
+        t1->prev = t2;
+        t2->next->prev = t1;
+        t2->next = t1;
+
+        t1 = t1->next;
+        t2 = t1->next;
+    }
+
+    return;
 }
 
 /* Reverse elements in queue */
