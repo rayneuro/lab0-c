@@ -159,14 +159,19 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 
     list_del_init(t);
 
+    // allocate memory for sp
+
     // Set the st
 
+
+
     if (sp != NULL) {
-        size_t i = 0;
-        for (i = 0; et->value[i] != '\0'; i++) {
+        for (size_t i = 0; i < bufsize - 1; i++) {
             sp[i] = et->value[i];
         }
-        sp[i] = '\0';
+        sp[bufsize - 1] = '\0';
+    } else {
+        return NULL;
     }
 
 
@@ -190,16 +195,16 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     head->prev = t->prev;
     t->prev->next = head;
 
-
-    // Set the st
+    // allocate memory for sp
 
 
     if (sp != NULL) {
-        size_t i = 0;
-        for (i = 0; et->value[i] != '\0'; i++) {
+        for (size_t i = 0; i < bufsize - 1; i++) {
             sp[i] = et->value[i];
         }
-        sp[i] = '\0';
+        sp[bufsize - 1] = '\0';
+    } else {
+        return NULL;
     }
 
 
