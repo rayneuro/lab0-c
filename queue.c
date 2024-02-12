@@ -28,6 +28,10 @@ struct list_head *q_new()
     // alloc mem for list_head
     struct list_head *ht = malloc(sizeof(struct list_head));
 
+    // if malloc() failed it will return the NULL pointer
+    if (ht == NULL) {
+        return NULL;
+    }
     ht->next = ht;
     ht->prev = ht;
 
@@ -81,12 +85,20 @@ bool q_insert_head(struct list_head *head, char *s)
 
     element_t *t = malloc(sizeof(element_t));
 
+    if (t == NULL)
+        return false;
+
     // mem alloc for string new string
     // don't know why but t->value =  (char * ) malloc( sizeof(s)); doesn't wotk
     // t->value =  (char * ) malloc( strlen(s) * sizeof(char) +1 ); --> memory
     // leak
     //
     char *st = (char *) malloc(strlen(s) * sizeof(char) + 1);
+
+    if (st == NULL) {
+        free(t);
+        return false;
+    }
 
     size_t i = 0;
 
@@ -119,8 +131,16 @@ bool q_insert_tail(struct list_head *head, char *s)
     // set the new node
     element_t *t = malloc(sizeof(element_t));
 
+    if (t == NULL)
+        return false;
     // avoid to use malloc(sizeof(*s)) !!!
+
     char *st = (char *) malloc(strlen(s) * sizeof(char) + 1);
+
+    if (st == NULL) {
+        free(t);
+        return false;
+    }
 
     size_t i = 0;
 
@@ -164,7 +184,6 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
     // Set the st
 
 
-
     if (sp != NULL) {
         for (size_t i = 0; i < bufsize - 1; i++) {
             sp[i] = et->value[i];
@@ -191,6 +210,7 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     t = t->prev;
 
     element_t *et = container_of(t, element_t, list);
+
     // change the linked-list
     head->prev = t->prev;
     t->prev->next = head;
@@ -698,7 +718,7 @@ int q_descend(struct list_head *head)
 
 
 /*
-   splice the node(listfrom) ahead of the node (listto)
+   splice the node(nodefrom) ahead of the node (ndeoto)
 */
 void splice_node(struct list_head *nodefrom, struct list_head *nodeto)
 {
