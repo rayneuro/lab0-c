@@ -183,7 +183,6 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 
     // Set the st
 
-
     if (sp != NULL) {
         for (size_t i = 0; i < bufsize - 1; i++) {
             sp[i] = et->value[i];
@@ -212,8 +211,9 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     element_t *et = container_of(t, element_t, list);
 
     // change the linked-list
-    head->prev = t->prev;
-    t->prev->next = head;
+    list_del_init(t);
+    // head->prev = t->prev;
+    // t->prev->next = head;
 
     // allocate memory for sp
 
